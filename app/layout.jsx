@@ -61,7 +61,7 @@ export const metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
-  icons: { icon: "/favicon.png?v=2" },
+  icons: { icon: "/favicon.png?v=3" },
 };
 
 const jsonLd = {
