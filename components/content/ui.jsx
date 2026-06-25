@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
+import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation";
 
 const openChat = () => window.dispatchEvent(new CustomEvent("ns-open-chat"));
 
@@ -35,19 +36,32 @@ export function PageHero({ image, eyebrow, title, sub }) {
   );
 }
 
-// ── Banda de imagen a todo lo ancho ─────────────────────────────────────────────
-export function ImageBand({ image, alt = "", caption }) {
+// ── Banner CTA con imagen de fondo ──────────────────────────────────────────────
+export function ImageBand({ image, alt = "", kicker, title, ctaLabel, ctaHref = "/agendar" }) {
   return (
-    <section className="relative h-[260px] md:h-[440px] overflow-hidden">
+    <section className="relative h-[380px] md:h-[480px] overflow-hidden flex items-center justify-center text-center">
       <img src={image} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
-      {caption && (
-        <>
-          <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,rgba(12,22,38,.65),transparent 55%)" }} />
-          <div className="absolute bottom-0 left-0 right-0 max-w-[1100px] mx-auto px-6 md:px-8 pb-7">
-            <p className="text-white/90 text-[14px] md:text-[16px] max-w-[52ch]">{caption}</p>
-          </div>
-        </>
-      )}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,rgba(12,22,38,.5) 0%,rgba(35,46,57,.55) 50%,rgba(12,22,38,.8) 100%)" }} />
+      <div className="absolute -bottom-28 left-1/2 -translate-x-1/2 w-[560px] h-[560px] rounded-full blur-3xl opacity-40 pointer-events-none"
+        style={{ background: "radial-gradient(circle,#3FB0A0,transparent 70%)" }} />
+      <Reveal className="relative z-10">
+        <div className="max-w-[820px] mx-auto px-6">
+          {kicker && <div className="eyebrow text-yellow mb-4">{kicker}</div>}
+          {title && (
+            <h3 className="text-white font-display leading-[1.05]" style={{ fontSize: "clamp(26px,4.4vw,50px)" }}>
+              {title}
+            </h3>
+          )}
+          {ctaLabel && (
+            <div className="mt-8">
+              <Link href={ctaHref}
+                className="inline-flex text-[13px] font-semibold tracking-wide rounded-full px-7 py-3.5 bg-yellow text-ink hover:bg-yellow-bright transition-colors shadow-[0_10px_30px_rgba(63,176,160,0.35)]">
+                {ctaLabel}
+              </Link>
+            </div>
+          )}
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -173,12 +187,10 @@ export function Note({ children }) {
 // ── Banda CTA al final ──────────────────────────────────────────────────────────
 export function CTABand({ title, sub, primary, secondary }) {
   return (
-    <section className="relative overflow-hidden bg-blue-deep text-white py-20 md:py-24">
-      <div
-        className="absolute -top-32 -right-24 w-[460px] h-[460px] rounded-full blur-3xl opacity-30"
-        style={{ background: "radial-gradient(circle,#3FB0A0,transparent 70%)" }}
-      />
-      <div className="relative max-w-[1100px] mx-auto px-6 md:px-8 text-center">
+    <section className="relative overflow-hidden bg-blue-deep text-white py-24 md:py-28">
+      <BackgroundGradientAnimation interactive={false} containerClassName="absolute inset-0 z-0" />
+      <div className="absolute inset-0 z-[1] bg-blue-deep/40" />
+      <div className="relative z-10 max-w-[1100px] mx-auto px-6 md:px-8 text-center">
         <Reveal>
           <h2 className="text-white max-w-[22ch] mx-auto" style={{ fontSize: "clamp(28px,4vw,48px)" }}>
             {title}

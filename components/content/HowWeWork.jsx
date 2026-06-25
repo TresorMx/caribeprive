@@ -57,10 +57,13 @@ export default function HowWeWork() {
       <ImageBand
         image="/articulos/H.jpg"
         alt={L({ es: "Riviera Maya desde el aire", en: "Riviera Maya from above" })}
-        caption={L({
-          es: "Del primer recorrido a la estrategia de salida: una sola contraparte para todo el ciclo.",
-          en: "From the first tour to the exit strategy: a single counterpart for the whole cycle.",
+        kicker={L({ es: "De principio a fin", en: "Start to finish" })}
+        title={L({
+          es: "Del primer recorrido a la estrategia de salida, contigo en todo el ciclo.",
+          en: "From the first tour to the exit strategy, with you through the whole cycle.",
         })}
+        ctaLabel={L({ es: "Hablar con un asesor", en: "Talk to an advisor" })}
+        ctaHref="/agendar"
       />
 
       {/* Los compromisos */}

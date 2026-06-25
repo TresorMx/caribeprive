@@ -152,10 +152,13 @@ export default function InvestorGuide() {
       <ImageBand
         image="/articulos/C.jpg"
         alt={L({ es: "Costa del Caribe Mexicano", en: "Mexican Caribbean coast" })}
-        caption={L({
-          es: "Playas de arena blanca y agua turquesa: el activo que sostiene la demanda y la plusvalía del corredor.",
-          en: "White-sand beaches and turquoise water: the asset that sustains the corridor's demand and appreciation.",
+        kicker={L({ es: "El activo del Caribe", en: "The Caribbean asset" })}
+        title={L({
+          es: "Arena blanca y agua turquesa que sostienen la plusvalía.",
+          en: "White sand and turquoise water that sustain appreciation.",
         })}
+        ctaLabel={L({ es: "Agendar una llamada", en: "Book a call" })}
+        ctaHref="/agendar"
       />
 
       {/* FAQ */}
