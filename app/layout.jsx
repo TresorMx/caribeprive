@@ -4,8 +4,7 @@ import PageWrapper from "@/components/PageWrapper";
 
 // ⚠️ Cambia esto por el dominio real de producción de Caribe Privé.
 const SITE_URL = "https://caribeprive.com";
-const OG_IMAGE =
-  "https://cdn.grupodaxi.com/images/mukta-largas/mukta-larga-grupo-daxi-01.webp";
+const OG_IMAGE = "/oghome.png"; // 1200×630 — se resuelve contra metadataBase
 
 const DESCRIPTION =
   "Asesoría inmobiliaria de lujo en el Caribe Mexicano. Una sola contraparte durante todo el ciclo de tu propiedad en Cancún, Puerto Morelos y Riviera Maya.";
@@ -71,7 +70,7 @@ const jsonLd = {
   name: "Caribe Privé",
   description: DESCRIPTION,
   url: SITE_URL,
-  image: OG_IMAGE,
+  image: `${SITE_URL}${OG_IMAGE}`,
   areaServed: ["Cancún", "Puerto Morelos", "Riviera Maya", "Quintana Roo, México"],
   address: {
     "@type": "PostalAddress",
