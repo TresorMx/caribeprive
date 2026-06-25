@@ -31,7 +31,26 @@ export async function POST(req) {
       unknown: "Por definir",
     };
 
-    // 1 — Crear / actualizar contacto
+    // Valor numérico representativo (punto medio) para el campo Monetary de GHL
+    const BUDGET_AMOUNTS = {
+      sub100: 100000,
+      "100_250": 175000,
+      "250_500": 375000,
+      "500plus": 500000,
+    };
+
+    const propsText = (propertyTypes || []).join(", ");
+    const destText  = (destinations || []).join(", ");
+    const budgetLabel = BUDGET_LABELS[budget] || budget || "";
+
+    const datosInformativos = [
+      propsText  && `Tipo de propiedad: ${propsText}`,
+      destText   && `Destino: ${destText}`,
+      budgetLabel && `Presupuesto: ${budgetLabel}`,
+      `Origen: Formulario de cita web`,
+    ].filter(Boolean).join("\n");
+
+    // 1 — Crear / actualizar contacto (keys = custom fields de GHL)
     const { contactId, error: contactError } = await createOrUpdateContact({
       name,
       phone: whatsapp,
@@ -39,9 +58,10 @@ export async function POST(req) {
       tags: ["appointment-request"],
       source: "Caribe Privé - Formulario Cita",
       customFields: {
-        property_interest:  (propertyTypes || []).join(", "),
-        destination_interest: (destinations || []).join(", "),
-        budget_range:       BUDGET_LABELS[budget] || budget || "",
+        tipo_de_propiedad_de_inters: propsText,
+        destino_de_inters:           destText,
+        ...(BUDGET_AMOUNTS[budget] != null && { presupuesto_del_lead: BUDGET_AMOUNTS[budget] }),
+        datos_informativos:          datosInformativos,
       },
     });
 

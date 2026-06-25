@@ -131,7 +131,7 @@ export async function POST(req) {
             tags:   ["chatbot-lead"],
             source: "Caribe Privé - Chatbot Web",
             customFields: {
-              lead_source_detail: "Chat IA web",
+              datos_informativos: "Lead capturado vía chatbot web. Ver la nota del contacto con la conversación completa.",
             },
           });
 
