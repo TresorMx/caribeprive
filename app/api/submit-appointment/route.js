@@ -39,9 +39,31 @@ export async function POST(req) {
       "500plus": 500000,
     };
 
+    // Etiqueta del form → valor (slug) del dropdown en GHL
+    const PROP_SLUGS = {
+      "Departamento": "departamento",
+      "Casa / Villa": "casa",
+      "Terreno": "terreno",
+      "Local Comercial": "local_comercial",
+      "Preventa": "otro",
+    };
+    const DEST_SLUGS = {
+      "Cancún": "cancún",
+      "Puerto Morelos": "puerto_morelos",
+      "Playa del Carmen": "playa_del_carmen",
+      "Tulum": "tulum",
+      "Riviera Maya": "otro",
+    };
+
     const propsText = (propertyTypes || []).join(", ");
     const destText  = (destinations || []).join(", ");
     const budgetLabel = BUDGET_LABELS[budget] || budget || "";
+
+    // Dropdown single → primera selección traducida al slug de GHL
+    const firstProp = (propertyTypes || [])[0];
+    const firstDest = (destinations || [])[0];
+    const propSlug = firstProp ? (PROP_SLUGS[firstProp] || "otro") : undefined;
+    const destSlug = firstDest ? (DEST_SLUGS[firstDest] || "otro") : undefined;
 
     const datosInformativos = [
       propsText  && `Tipo de propiedad: ${propsText}`,
@@ -58,10 +80,10 @@ export async function POST(req) {
       tags: ["appointment-request"],
       source: "Caribe Privé - Formulario Cita",
       customFields: {
-        tipo_de_propiedad_de_inters: propsText,
-        destino_de_inters:           destText,
+        ...(propSlug && { tipo_de_propiedad_de_inters: propSlug }),
+        ...(destSlug && { destino_de_inters: destSlug }),
         ...(BUDGET_AMOUNTS[budget] != null && { presupuesto_del_lead: BUDGET_AMOUNTS[budget] }),
-        datos_informativos:          datosInformativos,
+        datos_informativos: datosInformativos,
       },
     });
 
