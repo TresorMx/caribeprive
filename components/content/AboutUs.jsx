@@ -114,7 +114,7 @@ export default function AboutUs() {
 
       <CTABand
         title={L({ es: "Hablemos. Sin presión, con la verdad por delante.", en: "Let's talk. No pressure, the truth up front." })}
-        sub={L({ es: "Agenda una llamada o pregúntale a nuestro asesor con IA, en español o inglés, 24/7.", en: "Book a call or ask our AI advisor, in Spanish or English, 24/7." })}
+        sub={L({ es: "Agenda una llamada o pregúntale a nuestro asesor, en español o inglés, 24/7.", en: "Book a call or ask our advisor, in Spanish or English, 24/7." })}
         primary={L({ es: "Agendar una llamada", en: "Book a call" })}
         secondary={L({ es: "Preguntar al asesor", en: "Ask the advisor" })}
       />
