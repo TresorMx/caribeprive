@@ -2,16 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "@/components/LanguageProvider";
+import ChatScheduler from "@/components/ChatScheduler";
+
+const ANA_WHATSAPP = "529981543151";
 
 export default function Chat({ propertyName = null }) {
   const { lang, t } = useLang();
+  const es = lang === "es";
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
+
+  const [lead, setLead] = useState(null);            // { name, phone, email }
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [booking, setBooking] = useState(false);     // mini-agenda abierta
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [booked, setBooked] = useState(false);
+
   const bodyRef = useRef(null);
 
-  // greeting follows language
   useEffect(() => {
     setMessages((m) =>
       m.length === 0 ? [{ role: "assistant", content: t("chat.greeting") }] : m
@@ -27,12 +37,12 @@ export default function Chat({ propertyName = null }) {
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
-  }, [messages, loading]);
+  }, [messages, loading, lead, booking, booked]);
 
   const quickReplies = [
-    { es: "Propiedades en Cancún",        en: "Properties in Cancún" },
-    { es: "Propiedades en Puerto Morelos", en: "Properties in Puerto Morelos" },
-    { es: "Propiedades en Riviera Maya",   en: "Properties in Riviera Maya" },
+    { es: "Propiedades en Cancún",          en: "Properties in Cancún" },
+    { es: "Propiedades en Puerto Morelos",  en: "Properties in Puerto Morelos" },
+    { es: "Propiedades en Riviera Maya",    en: "Properties in Riviera Maya" },
     { es: "Quiero agendar una cita / Zoom", en: "I'd like to schedule a Zoom call" },
   ];
 
@@ -52,10 +62,7 @@ export default function Chat({ propertyName = null }) {
         }),
       });
       const data = await res.json();
-      setMessages([
-        ...next,
-        { role: "assistant", content: data.reply || t("chat.error") },
-      ]);
+      setMessages([...next, { role: "assistant", content: data.reply || t("chat.error") }]);
     } catch {
       setMessages([...next, { role: "assistant", content: t("chat.error") }]);
     } finally {
@@ -65,15 +72,68 @@ export default function Chat({ propertyName = null }) {
 
   const send = () => sendText(input.trim());
 
+  const captureLead = async ({ name, phone, email }) => {
+    setLeadSubmitting(true);
+    try {
+      const context = messages.slice(-6)
+        .map((m) => `${m.role === "user" ? "Cliente" : "Ana"}: ${m.content}`)
+        .join("\n");
+      await fetch("/api/chat-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, email, context }),
+      });
+    } catch { /* no bloquear */ }
+    setLead({ name, phone, email });
+    setLeadSubmitting(false);
+    const first = name.split(" ")[0];
+    setMessages((m) => [...m, {
+      role: "assistant",
+      content: es
+        ? `¡Gracias, ${first}! 🙌 ¿Agendamos una llamada para verlo a detalle? Toca “Agendar cita” aquí abajo.`
+        : `Thanks, ${first}! 🙌 Shall we book a call to go over it? Tap “Book appointment” below.`,
+    }]);
+  };
+
+  const confirmBooking = async (date, time) => {
+    setBookingSubmitting(true);
+    try {
+      await fetch("/api/submit-appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: lead.name, whatsapp: lead.phone, email: lead.email || "",
+          propertyTypes: [], destinations: [], budget: "",
+          date: date.toISOString(), time,
+        }),
+      });
+      setBooked(true);
+      setBooking(false);
+      const fecha = date.toLocaleDateString(es ? "es-MX" : "en-US", { weekday: "long", day: "numeric", month: "long" });
+      setMessages((m) => [...m, {
+        role: "assistant",
+        content: es
+          ? `¡Listo! Tu cita quedó para el ${fecha} a las ${time}. Te confirmamos por WhatsApp. 🎉`
+          : `Done! Your appointment is set for ${fecha} at ${time}. We'll confirm via WhatsApp. 🎉`,
+      }]);
+    } catch {
+      setMessages((m) => [...m, { role: "assistant", content: t("chat.error") }]);
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
+
+  const userMsgCount = messages.filter((m) => m.role === "user").length;
+  const showLeadForm = !lead && userMsgCount >= 1 && !loading && !booking && !booked;
+  const showBookChip = lead && !booking && !booked;
+
   return (
     <div className="fixed bottom-6 right-6 z-[60]">
       {open && (
         <div className="absolute bottom-16 right-0 w-[340px] max-w-[calc(100vw-3rem)] bg-paper border border-line rounded-2xl shadow-[0_24px_60px_rgba(12,22,38,0.25)] overflow-hidden">
           <div className="bg-blue text-white px-5 py-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0">
-                <img src="/anachat.png" alt="Ana" className="w-10 h-10 rounded-full object-cover" />
-              </div>
+              <img src="/anachat.png" alt="Ana" className="w-10 h-10 rounded-full object-cover" />
               <div>
                 <div className="font-semibold text-[15px]">Ana Paula Quiroga</div>
                 <div className="text-[11px] text-green-300 tracking-wide flex items-center gap-1">
@@ -81,12 +141,10 @@ export default function Chat({ propertyName = null }) {
                 </div>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white text-xl leading-none">
-              ×
-            </button>
+            <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white text-xl leading-none">×</button>
           </div>
 
-          <div ref={bodyRef} className="chat-scroll p-4 flex flex-col gap-3 max-h-[360px] overflow-auto">
+          <div ref={bodyRef} className="chat-scroll p-4 flex flex-col gap-3 max-h-[400px] overflow-auto">
             {messages.map((m, i) => (
               m.role === "user" ? (
                 <div key={i} className="text-[13.5px] px-3.5 py-2.5 rounded-xl rounded-br-sm max-w-[85%] whitespace-pre-wrap bg-blue text-white self-end">
@@ -101,16 +159,13 @@ export default function Chat({ propertyName = null }) {
                 </div>
               )
             ))}
-            {/* quick replies: solo cuando el chat está en el estado inicial (solo greeting) */}
+
             {messages.length === 1 && !loading && (
               <div className="flex flex-col gap-2 pl-8 mt-1">
                 {quickReplies.map((qr) => (
-                  <button
-                    key={qr.es}
-                    onClick={() => sendText(lang === "es" ? qr.es : qr.en)}
-                    className="text-left text-[12px] px-3.5 py-2 rounded-full border border-blue/30 text-blue hover:bg-blue hover:text-white transition-colors bg-white"
-                  >
-                    {lang === "es" ? qr.es : qr.en}
+                  <button key={qr.es} onClick={() => sendText(es ? qr.es : qr.en)}
+                    className="text-left text-[12px] px-3.5 py-2 rounded-full border border-blue/30 text-blue hover:bg-blue hover:text-white transition-colors bg-white">
+                    {es ? qr.es : qr.en}
                   </button>
                 ))}
               </div>
@@ -120,11 +175,29 @@ export default function Chat({ propertyName = null }) {
               <div className="flex items-end gap-2 self-start">
                 <img src="/anachat.png" alt="Ana" className="w-6 h-6 rounded-full object-cover flex-shrink-0 mb-0.5" />
                 <div className="bg-bone text-ink rounded-xl rounded-bl-sm px-3.5 py-2.5 text-[13.5px]">
-                  <span className="inline-flex gap-1">
-                    <Dot /> <Dot d="150ms" /> <Dot d="300ms" />
-                  </span>
+                  <span className="inline-flex gap-1"><Dot /> <Dot d="150ms" /> <Dot d="300ms" /></span>
                 </div>
               </div>
+            )}
+
+            {showLeadForm && <LeadForm es={es} submitting={leadSubmitting} onSubmit={captureLead} />}
+
+            {showBookChip && (
+              <button onClick={() => setBooking(true)}
+                className="self-stretch text-[12.5px] font-semibold rounded-full py-2.5 bg-yellow text-ink hover:bg-yellow-bright transition-colors">
+                📅 {es ? "Agendar cita" : "Book appointment"}
+              </button>
+            )}
+
+            {booking && !booked && (
+              <ChatScheduler lang={lang} submitting={bookingSubmitting} onConfirm={confirmBooking} />
+            )}
+
+            {booked && (
+              <a href={`https://wa.me/${ANA_WHATSAPP}`} target="_blank" rel="noopener noreferrer"
+                className="self-stretch flex items-center justify-center gap-2 text-[12.5px] font-semibold rounded-full py-2.5 bg-[#25D366] text-white hover:opacity-90 transition-opacity">
+                {es ? "Confirmar por WhatsApp" : "Confirm on WhatsApp"}
+              </a>
             )}
           </div>
 
@@ -136,45 +209,26 @@ export default function Chat({ propertyName = null }) {
               placeholder={t("chat.placeholder")}
               className="flex-1 border border-line rounded-full px-3.5 py-2 text-[13px] outline-none bg-white focus:border-blue"
             />
-            <button
-              onClick={send}
-              disabled={loading}
-              className="bg-blue text-white rounded-full w-9 h-9 flex items-center justify-center disabled:opacity-50"
-            >
-              ↑
-            </button>
+            <button onClick={send} disabled={loading}
+              className="bg-blue text-white rounded-full w-9 h-9 flex items-center justify-center disabled:opacity-50">↑</button>
           </div>
         </div>
       )}
 
-      {/* burbuja flotante con foto + alerta */}
       <div className="flex flex-col items-end gap-2">
         {!open && (
           <div className="relative mr-1">
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl rounded-br-none shadow-[0_4px_16px_rgba(12,22,38,0.12)] px-3.5 py-2 text-ink/80 text-[12px] w-[160px] leading-snug">
               {propertyName
-                ? (lang === "es"
-                    ? `¿Te interesa ${propertyName}? 🏠`
-                    : `Interested in ${propertyName}? 🏠`)
-                : (lang === "es"
-                    ? "¿Buscas una propiedad en el Caribe? 🌴"
-                    : "Looking for a property in the Caribbean? 🌴")
-              }
+                ? (es ? `¿Te interesa ${propertyName}? 🏠` : `Interested in ${propertyName}? 🏠`)
+                : (es ? "¿Buscas una propiedad en el Caribe? 🌴" : "Looking for a property in the Caribbean? 🌴")}
             </div>
-            {/* cola apuntando abajo-derecha hacia el avatar */}
-            <div
-              className="absolute -bottom-2.5 right-0 w-0 h-0"
-              style={{
-                borderLeft: "10px solid transparent",
-                borderTop: "10px solid rgba(255,255,255,0.9)",
-              }}
-            />
+            <div className="absolute -bottom-2.5 right-0 w-0 h-0"
+              style={{ borderLeft: "10px solid transparent", borderTop: "10px solid rgba(255,255,255,0.9)" }} />
           </div>
         )}
-        <button
-          onClick={() => setOpen((o) => !o)}
-          className="relative w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(10,53,113,0.4)] overflow-visible"
-        >
+        <button onClick={() => setOpen((o) => !o)}
+          className="relative w-14 h-14 rounded-full shadow-[0_12px_30px_rgba(10,53,113,0.4)] overflow-visible">
           <img src="/anachat.png" alt="Ana" className="w-14 h-14 rounded-full object-cover" />
           <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full" />
         </button>
@@ -183,11 +237,29 @@ export default function Chat({ propertyName = null }) {
   );
 }
 
-function Dot({ d = "0ms" }) {
+function LeadForm({ es, submitting, onSubmit }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const valid = name.trim() && phone.trim();
+  const field = "w-full border border-line rounded-lg px-3 py-2 text-[12.5px] outline-none bg-white focus:border-[#3FB0A0]";
   return (
-    <span
-      className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce inline-block"
-      style={{ animationDelay: d }}
-    />
+    <div className="self-stretch bg-white border border-blue/20 rounded-xl p-3.5 flex flex-col gap-2">
+      <p className="text-[12.5px] text-ink font-medium">
+        {es ? "Para continuar, déjame tu nombre completo y teléfono 👇" : "To continue, leave your full name and phone 👇"}
+      </p>
+      <input className={field} placeholder={es ? "Nombre completo" : "Full name"} value={name} onChange={(e) => setName(e.target.value)} />
+      <input className={field} type="tel" placeholder={es ? "WhatsApp / Teléfono" : "WhatsApp / Phone"} value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <input className={field} type="email" placeholder={es ? "Email (opcional)" : "Email (optional)"} value={email} onChange={(e) => setEmail(e.target.value)} />
+      <button disabled={!valid || submitting}
+        onClick={() => onSubmit({ name: name.trim(), phone: phone.trim(), email: email.trim() })}
+        className="text-[12px] font-semibold rounded-full py-2 bg-blue text-white hover:bg-blue-deep transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+        {submitting ? (es ? "Enviando…" : "Sending…") : (es ? "Continuar" : "Continue")}
+      </button>
+    </div>
   );
+}
+
+function Dot({ d = "0ms" }) {
+  return <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce inline-block" style={{ animationDelay: d }} />;
 }
