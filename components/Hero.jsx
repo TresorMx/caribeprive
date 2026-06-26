@@ -52,18 +52,21 @@ export default function Hero() {
         <span className="w-px h-12 bg-gradient-to-b from-white/60 to-transparent" />
       </div>
 
-      {/* foto asesora (rota cada 3 s) */}
+      {/* foto asesora (rota cada 3 s) — crossfade por opacidad, sin remontar (Safari-safe) */}
       <div className="absolute bottom-0 z-[3] hidden md:block" style={{ height: "85%", right: "8%" }}>
-        <motion.img
-          key={advisor.photo}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          src={advisor.photo}
-          alt={advisor.name}
-          className="h-full w-auto object-bottom object-contain"
-          style={{ objectPosition: "bottom" }}
-        />
+        <div className="relative h-full">
+          {/* sizer: define el ancho del contenedor */}
+          <img src={advisors[0].photo} alt="" aria-hidden className="h-full w-auto object-bottom object-contain opacity-0 pointer-events-none" />
+          {advisors.map((a, i) => (
+            <img
+              key={a.photo}
+              src={a.photo}
+              alt={a.name}
+              className="absolute inset-0 h-full w-full object-bottom object-contain transition-opacity duration-700 ease-in-out"
+              style={{ opacity: i === adv ? 1 : 0 }}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="relative z-[3] flex items-center pt-20">
@@ -123,15 +126,15 @@ export default function Hero() {
             {/* foto mobile — solo visible en móvil (altura fija para evitar saltos al rotar) */}
             <div className="md:hidden mt-8 flex flex-col items-center relative">
               <div className="relative w-64 h-[340px]">
-                <motion.img
-                  key={advisor.photo}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                  src={advisor.photo}
-                  alt={advisor.name}
-                  className="absolute inset-0 w-full h-full object-contain object-bottom"
-                />
+                {advisors.map((a, i) => (
+                  <img
+                    key={a.photo}
+                    src={a.photo}
+                    alt={a.name}
+                    className="absolute inset-0 w-full h-full object-contain object-bottom transition-opacity duration-700 ease-in-out"
+                    style={{ opacity: i === adv ? 1 : 0 }}
+                  />
+                ))}
               </div>
               <span
                 className="absolute bottom-16 left-1/2 -translate-x-1/2 inline-flex items-center px-6 py-1.5 text-ink text-xs font-semibold tracking-[0.08em] whitespace-nowrap"
