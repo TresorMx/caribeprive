@@ -9,8 +9,8 @@ const ANA_WHATSAPP = "529981543151";
 function buildWaUrl({ name, date, time }, es) {
   const fecha = date.toLocaleDateString(es ? "es-MX" : "en-US", { weekday: "long", day: "numeric", month: "long" });
   const msg = es
-    ? `Hola 👋 Soy ${name}. Acabo de agendar una cita para el ${fecha} a las ${time}. Me gustaría confirmarla 😊`
-    : `Hi 👋 I'm ${name}. I just booked an appointment for ${fecha} at ${time}. I'd like to confirm it 😊`;
+    ? `Hola, soy ${name}. Acabo de agendar una cita para el ${fecha} a las ${time}. Me gustaría confirmarla.`
+    : `Hi, I'm ${name}. I just booked an appointment for ${fecha} at ${time}. I'd like to confirm it.`;
   return `https://wa.me/${ANA_WHATSAPP}?text=${encodeURIComponent(msg)}`;
 }
 

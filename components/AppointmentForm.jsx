@@ -177,17 +177,17 @@ export default function AppointmentForm({ inlined = false }) {
   });
 
   const waSummary = [
-    "Hola 👋 Acabo de agendar una cita. Les comparto mi resumen:",
+    "Hola, acabo de agendar una cita. Les comparto mi resumen:",
     "",
-    `👤 ${form.name}`,
-    `📱 ${form.whatsapp}`,
-    form.email ? `✉️ ${form.email}` : null,
-    `🏠 Propiedad: ${form.propertyTypes.join(", ")}`,
-    `📍 Destino: ${form.destinations.join(", ")}`,
-    `💰 Presupuesto: ${BUDGETS.find(b => b.id === form.budget)?.label || ""}`,
-    `🗓️ ${formatDate(form.date)} — ${form.time}`,
+    `Nombre: ${form.name}`,
+    `WhatsApp: ${form.whatsapp}`,
+    form.email ? `Email: ${form.email}` : null,
+    `Propiedad: ${form.propertyTypes.join(", ")}`,
+    `Destino: ${form.destinations.join(", ")}`,
+    `Presupuesto: ${BUDGETS.find(b => b.id === form.budget)?.label || ""}`,
+    `Fecha: ${formatDate(form.date)} - ${form.time}`,
     "",
-    "Me gustaría charlar en este momento 😊",
+    "Me gustaría charlar en este momento.",
   ].filter(Boolean).join("\n");
   const waMessage = encodeURIComponent(waSummary);
   const waUrl = `https://wa.me/${ANA_WHATSAPP}?text=${waMessage}`;
