@@ -21,7 +21,7 @@ export default function Nav({ dark = false }) {
   const links = [
     { href: "/#posicionamiento", label: t("nav.approach") },
     { href: "/#como-trabajamos", label: t("nav.how") },
-    { href: "/#propiedades", label: t("nav.properties") },
+    { href: "/propiedades", label: t("nav.properties") },
     { href: "/#mercado", label: t("nav.market") },
   ];
 

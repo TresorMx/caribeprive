@@ -116,7 +116,7 @@ export default function Hero() {
                 {t("hero.cta1")}
               </button>
               <a
-                href="#propiedades"
+                href="/propiedades"
                 className="text-[13px] tracking-wide rounded-full px-6 py-3 border border-white/50 text-white hover:bg-white hover:text-ink transition-colors"
               >
                 {t("hero.cta2")}

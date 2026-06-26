@@ -27,7 +27,7 @@ export default function Footer() {
     { href: "/nosotros", label: L("Sobre nosotros", "About us") },
   ];
   const site = [
-    { href: "/#propiedades", label: L("Propiedades", "Properties") },
+    { href: "/propiedades", label: L("Propiedades", "Properties") },
     { href: "/#mercado", label: L("Mercado", "Market") },
     { href: "/agendar", label: L("Agendar cita", "Book a call") },
   ];
