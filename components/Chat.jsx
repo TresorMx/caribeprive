@@ -113,9 +113,10 @@ export default function Chat({ propertyName = null }) {
     setMessages((m) => [...m, {
       role: "assistant",
       content: es
-        ? `¡Gracias, ${first}! Agenda tu cita aquí abajo 👇`
-        : `Thanks, ${first}! Book your appointment below 👇`,
+        ? `¡Gracias, ${first}! Elige el día y la hora aquí abajo 👇`
+        : `Thanks, ${first}! Pick a day and time below 👇`,
     }]);
+    setBooking(true); // abre la agenda de inmediato (flujo continuo)
   };
 
   const confirmBooking = async (date, time) => {
@@ -126,7 +127,7 @@ export default function Chat({ propertyName = null }) {
         .slice(-12)
         .map((m) => `${m.role === "user" ? "Cliente" : "Ana"}: ${m.content}`)
         .join("\n");
-      await fetch("/api/submit-appointment", {
+      const res = await fetch("/api/submit-appointment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -135,14 +136,20 @@ export default function Chat({ propertyName = null }) {
           date: date.toISOString(), time, context,
         }),
       });
+      const data = await res.json().catch(() => ({}));
+      const ok = !!data.appointmentId;
       setBooked({ date, time });
       setBooking(false);
       const fecha = date.toLocaleDateString(es ? "es-MX" : "en-US", { weekday: "long", day: "numeric", month: "long" });
       setMessages((m) => [...m, {
         role: "assistant",
-        content: es
-          ? `¡Listo! Tu cita quedó para el ${fecha} a las ${time}. Te confirmamos por WhatsApp. 🎉`
-          : `Done! Your appointment is set for ${fecha} at ${time}. We'll confirm via WhatsApp. 🎉`,
+        content: ok
+          ? (es
+              ? `¡Listo! Tu cita quedó para el ${fecha} a las ${time}. Te confirmamos por WhatsApp. 🎉`
+              : `Done! Your appointment is set for ${fecha} at ${time}. We'll confirm via WhatsApp. 🎉`)
+          : (es
+              ? `Recibí tu solicitud para el ${fecha} a las ${time}. Te confirmamos el horario por WhatsApp.`
+              : `Got your request for ${fecha} at ${time}. We'll confirm the time via WhatsApp.`),
       }]);
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: t("chat.error") }]);
