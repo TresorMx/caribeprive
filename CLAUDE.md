@@ -43,6 +43,7 @@ Producción: `npm run build && npm start`.
 | `GHL_CALENDAR_ID` | Agendar citas | Calendars → [calendario] → Settings |
 | `GHL_ASSIGNED_USER_ID` | (Opcional) asignar usuario | En calendario **round robin** déjala VACÍA |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Mapas | `AIza...` (única que se expone al navegador) |
+| `GHL_VISIT_CALENDAR_ID` | (Opcional) apartar visitas del landing `/mukta` | Calendario de visitas presenciales |
 
 `.env.local` está en `.gitignore` (no se sube). En Vercel: Settings → Environment
 Variables + **Redeploy** (las `NEXT_PUBLIC_*` se hornean en el build).
@@ -139,6 +140,26 @@ API v2 (`services.leadconnectorhq.com`, versión `2021-07-28`, Bearer token).
 5. **Imágenes**: fotos pesadas en **WebP**; below-the-fold con `loading="lazy"`.
 6. **Mensajes de WhatsApp** sin emoji (varios se veían como `?` en Android).
 7. El **preloader** (`PageWrapper` → `Preloader`) se muestra una vez por carga completa.
+
+## Landing de campaña: "Nada en nuestro cenote" (Mukta) — `/mukta`
+
+Landing del flyer con QR. Enfocado a conversión: sin Nav, sin chat, **sin preloader**
+(ver `NO_PRELOADER` en `components/PageWrapper.jsx`), botón fijo en móvil.
+
+- **Config** (horarios, días cerrados, cupo, ventana de fechas): `lib/muktaVisit.js` — la
+  usan el form y la API, así que siempre validan lo mismo.
+- **Datos**: nombre, WhatsApp (se normaliza a `+52…`), email opcional, día, hora, número de
+  personas, interés (conocer/vivir/invertir), consentimiento, UTMs. Honeypot anti-spam.
+- **Dónde se guarda**: `POST /api/mukta-visita` → GHL: contacto (upsert) con tags
+  `mukta-cenote`, `visita-solicitada`, `interes-*`, `utm-*`; source "Caribe Privé - Landing
+  Mukta Cenote"; `datos_informativos` + nota con el resumen. Si existe la env opcional
+  **`GHL_VISIT_CALENDAR_ID`**, también aparta la visita en ese calendario con estado `new`
+  (pendiente de confirmar). Si GHL falla, la API responde error (no se pierde el lead en silencio).
+- **Gracias**: `/mukta/gracias` (noindex). Datos vía `sessionStorage`, Google Calendar en
+  hora de Cancún (`ctz`), WhatsApp precargado.
+- **Notificaciones**: las dispara un Workflow de GHL con trigger *tag added = `mukta-cenote`*
+  (mensaje al cliente + aviso interno al asesor). La ubicación exacta la manda el asesor al confirmar.
+- **QR**: apuntar a `https://caribeprive.com/mukta?utm_source=flyer&utm_medium=qr&utm_campaign=mukta-cenote`.
 
 ## Pendientes / ideas
 

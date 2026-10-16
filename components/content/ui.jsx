@@ -11,7 +11,7 @@ const openChat = () => window.dispatchEvent(new CustomEvent("ns-open-chat"));
 export function PageHero({ image, eyebrow, title, sub }) {
   return (
     <header className="relative min-h-[68vh] flex items-end overflow-hidden bg-blue-deep">
-      <img src={image} alt="" fetchpriority="high" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+      <img src={image} alt="" fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
       <div
         className="absolute inset-0"
         style={{

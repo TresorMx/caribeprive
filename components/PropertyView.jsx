@@ -61,7 +61,7 @@ export default function PropertyView({ property: p }) {
         style={{ height: "100svh" }}
       >
         <div className="absolute inset-0 z-[1]">
-          <img src={p.heroImage} alt={p.name} fetchpriority="high" decoding="async" className="h-full w-full object-cover opacity-60" />
+          <img src={p.heroImage} alt={p.name} fetchPriority="high" decoding="async" className="h-full w-full object-cover opacity-60" />
           <div
             className="absolute inset-0"
             style={{ background: "linear-gradient(180deg,rgba(35,46,57,.3),rgba(35,46,57,.9))" }}
