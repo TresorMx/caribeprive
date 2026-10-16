@@ -93,7 +93,7 @@ export default function MuktaLanding() {
           <span className="text-[11px] tracking-[0.18em] uppercase text-white/70">Puerto Morelos</span>
         </header>
 
-        <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-8 pt-14 pb-16 md:pt-24 md:pb-28 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+        <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-8 pt-14 pb-16 md:pt-24 md:pb-28 grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-12 items-center">
           <Reveal>
             <div className="eyebrow text-yellow mb-5">Mukta Residencial</div>
             <h1 className="text-white max-w-[13ch] leading-[0.98]" style={{ fontSize: "clamp(40px,6.4vw,84px)" }}>
@@ -113,7 +113,7 @@ export default function MuktaLanding() {
           </Reveal>
 
           {/* ── FORMULARIO ── */}
-          <div ref={formRef} id="reservar" className="scroll-mt-6">
+          <div ref={formRef} id="reservar" className="scroll-mt-6 min-w-0 w-full max-w-[520px] lg:justify-self-end">
             <form onSubmit={submit} noValidate
               className="rounded-[24px] bg-white/95 backdrop-blur-xl border border-white/70 shadow-[0_30px_80px_rgba(12,22,38,0.35)] p-6 md:p-7">
               <h2 className="text-ink leading-tight" style={{ fontSize: "clamp(24px,2.6vw,30px)" }}>Reserva tu visita</h2>
